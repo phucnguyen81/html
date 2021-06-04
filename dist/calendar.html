@@ -307,22 +307,19 @@
         }
       }
 
-      function resetCalendar(context, todayDate, selDate) {
-        selDate = selDate || todayDate;
+      function asDate(date) {
+        return {
+          year: date.getFullYear(),
+          month: date.getMonth(),
+          day: date.getDay(),  // day-of-week: 0=Sun, 1=Mon, 2=Tue,...
+          date: date.getDate()  // day-of-month: 1,2,3,4,...
+        };
+      }
+
+      function resetCalendar(context, today, date) {
+        date = date || today;
         var months = context.months;
         var days = context.days;
-        var today = {
-          year: todayDate.getFullYear(),
-          month: todayDate.getMonth(),
-          day: todayDate.getDay(),  // day-of-week: 0=Sun, 1=Mon, 2=Tue,...
-          date: todayDate.getDate()  // day-of-month: 1,2,3,4,...
-        };
-        var date = {
-          year: selDate.getFullYear(),
-          month: selDate.getMonth(),
-          day: selDate.getDay(),  // day-of-week: 0=Sun, 1=Mon, 2=Tue,...
-          date: selDate.getDate()  // day-of-month: 1,2,3,4,...
-        };
 
         // first day of the month
         var firstDay = new Date(date.year, date.month, 1);
@@ -336,9 +333,9 @@
         var monthLabel = months[date.month];
         var dayLabel = days[date.day];
         var dayth = (
-          ((date.date + 1) % 10) == 1 ? "1st" : (
-            ((date.date + 1) % 10) == 2 ? "2nd" : (
-              ((date.date + 1) % 10) == 3 ? "3rd" : (
+          (date.date % 10) == 1 ? "1st" : (
+            (date.date % 10) == 2 ? "2nd" : (
+              (date.date % 10) == 3 ? "3rd" : (
                 "" + date.date + "th"
               )
             )
@@ -359,11 +356,17 @@
         var dayEle = document.getElementById("cal-day-" + day);
         var dateString = dayEle.getAttribute("data-value");
         var date = new Date(dateString);
-        resetCalendar(defaultContext(), new Date(), date);
+        resetCalendar(defaultContext(), asDate(new Date()), asDate(date));
+      }
+
+      function selectMonth(month) {
+        var today = new Date();
+        var date = new Date(today.getFullYear(), month);
+        resetCalendar(defaultContext(), asDate(today), asDate(date));
       }
 
       function initCalendar() {
-        resetCalendar(defaultContext(), new Date());
+        resetCalendar(defaultContext(), asDate(new Date()));
       }
     </script>
   </head>
@@ -389,18 +392,18 @@
         <div class="content">
           <h2 id="cal-year" class="year">2013</h2>
           <ul class="months">
-            <li><a id="cal-month-0" href="#" title="Jan" data-value="1">Jan</a></li>
-            <li><a id="cal-month-1" href="#" title="Feb" data-value="2">Feb</a></li>
-            <li><a id="cal-month-2" href="#" title="Mar" data-value="3">Mar</a></li>
-            <li><a id="cal-month-3" href="#" title="Apr" data-value="4">Apr</a></li>
-            <li><a id="cal-month-4" href="#" title="May" data-value="5">May</a></li>
-            <li><a id="cal-month-5" href="#" title="Jun" data-value="6">Jun</a></li>
-            <li><a id="cal-month-6" href="#" title="Jul" data-value="7">Jul</a></li>
-            <li><a id="cal-month-7" href="#" title="Aug" data-value="8">Aug</a></li>
-            <li><a id="cal-month-8" href="#" title="Sep" data-value="9">Sep</a></li>
-            <li><a id="cal-month-9" href="#" title="Oct" data-value="10">Oct</a></li>
-            <li><a id="cal-month-10" href="#" title="Nov" data-value="11">Nov</a></li>
-            <li><a id="cal-month-11" href="#" title="Dec" data-value="12">Dec</a></li>
+            <li><a id="cal-month-0" onClick="selectMonth(0)" href="#" title="Jan" data-value="1">Jan</a></li>
+            <li><a id="cal-month-1" onClick="selectMonth(1)" href="#" title="Feb" data-value="2">Feb</a></li>
+            <li><a id="cal-month-2" onClick="selectMonth(2)" href="#" title="Mar" data-value="3">Mar</a></li>
+            <li><a id="cal-month-3" onClick="selectMonth(3)" href="#" title="Apr" data-value="4">Apr</a></li>
+            <li><a id="cal-month-4" onClick="selectMonth(4)" href="#" title="May" data-value="5">May</a></li>
+            <li><a id="cal-month-5" onClick="selectMonth(5)" href="#" title="Jun" data-value="6">Jun</a></li>
+            <li><a id="cal-month-6" onClick="selectMonth(6)" href="#" title="Jul" data-value="7">Jul</a></li>
+            <li><a id="cal-month-7" onClick="selectMonth(7)" href="#" title="Aug" data-value="8">Aug</a></li>
+            <li><a id="cal-month-8" onClick="selectMonth(8)" href="#" title="Sep" data-value="9">Sep</a></li>
+            <li><a id="cal-month-9" onClick="selectMonth(9)" href="#" title="Oct" data-value="10">Oct</a></li>
+            <li><a id="cal-month-10" onClick="selectMonth(10)" href="#" title="Nov" data-value="11">Nov</a></li>
+            <li><a id="cal-month-11" onClick="selectMonth(11)" href="#" title="Dec" data-value="12">Dec</a></li>
           </ul>
           <div class="clearfix"></div>
           <ul class="weekday">
