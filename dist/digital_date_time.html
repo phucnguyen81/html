@@ -5,7 +5,7 @@
     <title>Clock</title>
     <style type="text/css" media="all">
       body {background-color: rgb(47,52,55);}
-      #timedate {
+      #datetime {
         font: small-caps lighter 20px/150% "Segoe UI", Frutiger, "Frutiger Linotype", "Dejavu Sans", "Helvetica Neue", Arial, sans-serif;
         text-align: center;
         color: rgba(255, 255, 255, 0.9);
@@ -23,14 +23,23 @@
         var sec = now.getSeconds(), min = now.getMinutes(),
           hou = now.getHours(), mo = now.getMonth(),
           dy = now.getDate(), yr = now.getFullYear();
+
+        // to AM/PM
+        var amPm = " " + (hou >= 12 ? "PM" : "AM");
+        hou = hou % 12;
+
         var months = [
           "January", "February", "March", "April", "May", "June",
           "July", "August", "September", "October", "November", "December"
         ];
-        var tags = ["mon", "d", "y", "h", "m", "s"],
-          corr = [months[mo], dy, yr, hou.pad(2), min.pad(2), sec.pad(2)];
-        for (var i = 0; i < tags.length; i++)
+        var tags = [
+          "datetime-mon", "datetime-d", "datetime-y", "datetime-h",
+          "datetime-m", "datetime-s", "datetime-ampm"
+        ],
+          corr = [months[mo], dy, yr, hou.pad(2), min.pad(2), sec.pad(2), amPm];
+        for (var i = 0; i < tags.length; i++) {
           document.getElementById(tags[i]).firstChild.nodeValue = corr[i];
+        }
       }
 
       function initClock() {
@@ -41,13 +50,14 @@
     </script>
   </head>
   <body onLoad="initClock()">
-    <div id="timedate">
-      <a id="mon">January</a>
-      <a id="d">1</a>,
-      <a id="y">0</a><br />
-      <a id="h">12</a> :
-      <a id="m">00</a>:
-      <a id="s">00</a>
+    <div id="datetime">
+      <a id="datetime-mon">January</a>
+      <a id="datetime-d">1</a>,
+      <a id="datetime-y">0</a><br />
+      <a id="datetime-h">12</a> :
+      <a id="datetime-m">00</a> :
+      <a id="datetime-s">00</a>
+      <a id="datetime-ampm"> AM</a>
     </div>
   </body>
 </html>
