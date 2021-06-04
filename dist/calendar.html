@@ -69,7 +69,6 @@
         font-weight: 300;
         font-size: 26px;
         line-height: 28px;
-        text-transform: uppercase;
         margin: 0px 0px 20px 0px;
       }
 
@@ -211,7 +210,12 @@
       }
 
       .calendar .days li .selected{
-        background-color: #F5A1A3!important;
+        background-color: #F48989!important;
+        color: #ffffff;
+      }
+
+      .calendar .days li .today{
+        background-color: #FF0066!important;
         color: #ffffff;
       }
 
@@ -226,13 +230,149 @@
       ::-moz-placeholder {color: #ffffff; }
       :-ms-input-placeholder {color: #ffffff; }
     </style>
+    <script charset="utf-8">
+      function defaultContext() {
+        return {
+          months: [
+            "January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+          ],
+          days: [
+            "Sunday", "Monday", "Tuesday", "Wednesday",
+            "Thursday", "Friday", "Saturday"
+          ]
+        };
+      }
+
+      function renderCalendar(context, view) {
+        var days = context.days;
+        var months = context.months;
+
+        var today = view.today;
+        var date = view.date
+
+        var dayLabel = view.dayLabel;
+        var dayth = view.dayth;
+        var firstDay = view.firstDay;
+        var monthLabel = view.monthLabel;
+
+        document.getElementById("cal-year").firstChild.nodeValue = date.year;
+        document.getElementById("cal-day-label").firstChild.nodeValue = dayLabel;
+        document.getElementById("cal-month-label").firstChild.nodeValue = monthLabel + " " + dayth;
+        months.forEach((_, idx) => {
+          var monthEle = document.getElementById("cal-month-" + idx);
+          if (idx == date.month) {
+            monthEle.classList.add("selected");
+          }
+          else {
+            monthEle.classList.remove("selected");
+          }
+        });
+
+        // Show a 35-days span that covers the current month
+        var daysEle = document.getElementById("cal-days");
+        for (var idx = 0, day = firstDay; idx < 35; idx++) {
+            var dayEle = document.getElementById("cal-day-" + idx);
+            dayEle.firstChild.nodeValue = day.getDate();
+            dayEle.setAttribute("title", days[day.getDay()]);
+            dayEle.setAttribute("data-value", day.toDateString());
+
+            if (
+              day.getFullYear() == today.year &&
+              day.getMonth() == today.month &&
+              day.getDate() == today.date
+            ) {
+              // set today style
+              dayEle.classList.add("today");
+            }
+            else {
+              // clear style if the day is not today
+              dayEle.classList.remove("today");
+            }
+
+            if (
+              day.getFullYear() == date.year &&
+              day.getMonth() == date.month &&
+              day.getDate() == date.date
+            ) {
+              // set selected style
+              dayEle.classList.add("selected");
+            }
+            else {
+              // clear selected style
+              dayEle.classList.remove("selected");
+            }
+
+            day.setDate(day.getDate() + 1);  // next day
+        }
+      }
+
+      function resetCalendar(context, todayDate, selDate) {
+        selDate = selDate || todayDate;
+        var months = context.months;
+        var days = context.days;
+        var today = {
+          year: todayDate.getFullYear(),
+          month: todayDate.getMonth(),
+          day: todayDate.getDay(),  // day-of-week: 0=Sun, 1=Mon, 2=Tue,...
+          date: todayDate.getDate()  // day-of-month: 1,2,3,4,...
+        };
+        var date = {
+          year: selDate.getFullYear(),
+          month: selDate.getMonth(),
+          day: selDate.getDay(),  // day-of-week: 0=Sun, 1=Mon, 2=Tue,...
+          date: selDate.getDate()  // day-of-month: 1,2,3,4,...
+        };
+
+        // first day of the month
+        var firstDay = new Date(date.year, date.month, 1);
+        // find the last Monday before the first day of the month
+        // TODO don't hard-code Monday here
+        while (days[firstDay.getDay()] != "Monday") {
+          /// go back one day
+          firstDay.setDate(firstDay.getDate() - 1);
+        }
+
+        var monthLabel = months[date.month];
+        var dayLabel = days[date.day];
+        var dayth = (
+          ((date.date + 1) % 10) == 1 ? "1st" : (
+            ((date.date + 1) % 10) == 2 ? "2nd" : (
+              ((date.date + 1) % 10) == 3 ? "3rd" : (
+                "" + date.date + "th"
+              )
+            )
+          )
+        );
+
+        renderCalendar(context, {
+          today: today,
+          date: date,
+          dayLabel: dayLabel,
+          dayth: dayth,
+          firstDay: firstDay,
+          monthLabel: monthLabel,
+        });
+      }
+
+      function selectDay(day) {
+        var dayEle = document.getElementById("cal-day-" + day);
+        var dateString = dayEle.getAttribute("data-value");
+        var date = new Date(dateString);
+        resetCalendar(defaultContext(), new Date(), date);
+      }
+
+      function initCalendar() {
+        resetCalendar(defaultContext(), new Date());
+      }
+    </script>
   </head>
-  <body>
+  <body onLoad="initCalendar()">
     <div class="calendar">
 
       <div class="col leftCol">
         <div class="content">
-          <h1 class="date">Friday<span>September 12th</span></h1>
+          <h1 id="cal-day-label" class="date">Friday<span id="cal-month-label">September 12th</span></h1>
           <div class="notes">
             <p>
             <input type="text" value="" placeholder="new note"/>
@@ -247,20 +387,20 @@
 
       <div class="col rightCol">
         <div class="content">
-          <h2 class="year">2013</h2>
+          <h2 id="cal-year" class="year">2013</h2>
           <ul class="months">
-            <li><a href="#" title="Jan" data-value="1">Jan</a></li>
-            <li><a href="#" title="Feb" data-value="2">Feb</a></li>
-            <li><a href="#" title="Mar" data-value="3">Mar</a></li>
-            <li><a href="#" title="Apr" data-value="4">Apr</a></li>
-            <li><a href="#" title="May" data-value="5">May</a></li>
-            <li><a href="#" title="Jun" data-value="6">Jun</a></li>
-            <li><a href="#" title="Jul" data-value="7">Jul</a></li>
-            <li><a href="#" title="Aug" data-value="8">Aug</a></li>
-            <li><a href="#" title="Sep" data-value="9" class="selected">Sep</a></li>
-            <li><a href="#" title="Oct" data-value="10">Oct</a></li>
-            <li><a href="#" title="Nov" data-value="11">Nov</a></li>
-            <li><a href="#" title="Dec" data-value="12">Dec</a></li>
+            <li><a id="cal-month-0" href="#" title="Jan" data-value="1">Jan</a></li>
+            <li><a id="cal-month-1" href="#" title="Feb" data-value="2">Feb</a></li>
+            <li><a id="cal-month-2" href="#" title="Mar" data-value="3">Mar</a></li>
+            <li><a id="cal-month-3" href="#" title="Apr" data-value="4">Apr</a></li>
+            <li><a id="cal-month-4" href="#" title="May" data-value="5">May</a></li>
+            <li><a id="cal-month-5" href="#" title="Jun" data-value="6">Jun</a></li>
+            <li><a id="cal-month-6" href="#" title="Jul" data-value="7">Jul</a></li>
+            <li><a id="cal-month-7" href="#" title="Aug" data-value="8">Aug</a></li>
+            <li><a id="cal-month-8" href="#" title="Sep" data-value="9">Sep</a></li>
+            <li><a id="cal-month-9" href="#" title="Oct" data-value="10">Oct</a></li>
+            <li><a id="cal-month-10" href="#" title="Nov" data-value="11">Nov</a></li>
+            <li><a id="cal-month-11" href="#" title="Dec" data-value="12">Dec</a></li>
           </ul>
           <div class="clearfix"></div>
           <ul class="weekday">
@@ -273,23 +413,42 @@
             <li><a href="#" title="Sun" data-value="7">Sun</a></li>
           </ul>
           <div class="clearfix"></div>
-          <ul class="days">
-            <script>
-            for( var _i = 1; _i <= 31; _i += 1 ){
-              var _addClass = '';
-              if( _i === 12 ){ _addClass = ' class="selected"'; }
-
-              switch( _i ){
-                case 8:
-                case 10:
-                case 27:
-                  _addClass = ' class="event"';
-                  break;
-              }
-
-              document.write( '<li><a href="#" title="'+_i+'" data-value="'+_i+'"'+_addClass+'>'+_i+'</a></li>' );
-            }
-            </script>
+          <ul id="cal-days" class="days">
+            <li><a id="cal-day-0" onClick="selectDay(0); return false;" href="#" title="" data-value="">0</a></li>
+            <li><a id="cal-day-1" onClick="selectDay(1); return false;" href="#" title="" data-value="">0</a></li>
+            <li><a id="cal-day-2" onClick="selectDay(2); return false;" href="#" title="" data-value="">0</a></li>
+            <li><a id="cal-day-3" onClick="selectDay(3); return false;" href="#" title="" data-value="">0</a></li>
+            <li><a id="cal-day-4" onClick="selectDay(4); return false;" href="#" title="" data-value="">0</a></li>
+            <li><a id="cal-day-5" onClick="selectDay(5); return false;" href="#" title="" data-value="">0</a></li>
+            <li><a id="cal-day-6" onClick="selectDay(6); return false;" href="#" title="" data-value="">0</a></li>
+            <li><a id="cal-day-7" onClick="selectDay(7); return false;" href="#" title="" data-value="">0</a></li>
+            <li><a id="cal-day-8" onClick="selectDay(8); return false;" href="#" title="" data-value="">0</a></li>
+            <li><a id="cal-day-9" onClick="selectDay(9); return false;" href="#" title="" data-value="">0</a></li>
+            <li><a id="cal-day-10" onClick="selectDay(10); return false;" href="#" title="" data-value="">0</a></li>
+            <li><a id="cal-day-11" onClick="selectDay(11); return false;" href="#" title="" data-value="">0</a></li>
+            <li><a id="cal-day-12" onClick="selectDay(12); return false;" href="#" title="" data-value="">0</a></li>
+            <li><a id="cal-day-13" onClick="selectDay(13); return false;" href="#" title="" data-value="">0</a></li>
+            <li><a id="cal-day-14" onClick="selectDay(14); return false;" href="#" title="" data-value="">0</a></li>
+            <li><a id="cal-day-15" onClick="selectDay(15); return false;" href="#" title="" data-value="">0</a></li>
+            <li><a id="cal-day-16" onClick="selectDay(16); return false;" href="#" title="" data-value="">0</a></li>
+            <li><a id="cal-day-17" onClick="selectDay(17); return false;" href="#" title="" data-value="">0</a></li>
+            <li><a id="cal-day-18" onClick="selectDay(18); return false;" href="#" title="" data-value="">0</a></li>
+            <li><a id="cal-day-19" onClick="selectDay(19); return false;" href="#" title="" data-value="">0</a></li>
+            <li><a id="cal-day-20" onClick="selectDay(20); return false;" href="#" title="" data-value="">0</a></li>
+            <li><a id="cal-day-21" onClick="selectDay(21); return false;" href="#" title="" data-value="">0</a></li>
+            <li><a id="cal-day-22" onClick="selectDay(22); return false;" href="#" title="" data-value="">0</a></li>
+            <li><a id="cal-day-23" onClick="selectDay(23); return false;" href="#" title="" data-value="">0</a></li>
+            <li><a id="cal-day-24" onClick="selectDay(24); return false;" href="#" title="" data-value="">0</a></li>
+            <li><a id="cal-day-25" onClick="selectDay(25); return false;" href="#" title="" data-value="">0</a></li>
+            <li><a id="cal-day-26" onClick="selectDay(26); return false;" href="#" title="" data-value="">0</a></li>
+            <li><a id="cal-day-27" onClick="selectDay(27); return false;" href="#" title="" data-value="">0</a></li>
+            <li><a id="cal-day-28" onClick="selectDay(28); return false;" href="#" title="" data-value="">0</a></li>
+            <li><a id="cal-day-29" onClick="selectDay(29); return false;" href="#" title="" data-value="">0</a></li>
+            <li><a id="cal-day-30" onClick="selectDay(30); return false;" href="#" title="" data-value="">0</a></li>
+            <li><a id="cal-day-31" onClick="selectDay(31); return false;" href="#" title="" data-value="">0</a></li>
+            <li><a id="cal-day-32" onClick="selectDay(32); return false;" href="#" title="" data-value="">0</a></li>
+            <li><a id="cal-day-33" onClick="selectDay(33); return false;" href="#" title="" data-value="">0</a></li>
+            <li><a id="cal-day-34" onClick="selectDay(34); return false;" href="#" title="" data-value="">0</a></li>
           </ul>
           <div class="clearfix"></div>
         </div>
