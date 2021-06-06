@@ -23,7 +23,8 @@
 
       function updateClock() {
         var now = new Date();
-        var sec = now.getSeconds(), min = now.getMinutes(),
+        var dd = now.getDay(),
+          sec = now.getSeconds(), min = now.getMinutes(),
           hou = now.getHours(), mo = now.getMonth(),
           dy = now.getDate(), yr = now.getFullYear();
 
@@ -31,15 +32,24 @@
         var amPm = " " + (hou >= 12 ? "PM" : "AM");
         hou = hou % 12;
 
+        var days = [
+          "Sunday", "Monday", "Tuesday", "Wednesday",
+          "Thursday", "Friday", "Saturday", "Sunday"
+        ];
         var months = [
           "January", "February", "March", "April", "May", "June",
           "July", "August", "September", "October", "November", "December"
         ];
         var tags = [
-          "datetime-mon", "datetime-d", "datetime-y", "datetime-h",
-          "datetime-m", "datetime-s", "datetime-ampm"
-        ],
-          corr = [months[mo], dy, yr, hou.pad(2), min.pad(2), sec.pad(2), amPm];
+          "datetime-day",
+          "datetime-mon", "datetime-d", "datetime-y",
+          "datetime-h", "datetime-m", "datetime-s", "datetime-ampm"
+        ];
+        var corr = [
+          days[dd],
+          months[mo], dy, yr,
+          hou.pad(2), min.pad(2), sec.pad(2), amPm
+        ];
         for (var i = 0; i < tags.length; i++) {
           document.getElementById(tags[i]).firstChild.nodeValue = corr[i];
         }
@@ -54,6 +64,7 @@
   </head>
   <body onLoad="initClock()">
     <div id="datetime">
+      <a id="datetime-day">Monday</a><br />
       <a id="datetime-mon">January</a>
       <a id="datetime-d">1</a>,
       <a id="datetime-y">0</a><br />
