@@ -24,13 +24,11 @@ document.addEventListener('DOMContentLoaded', function(event) {
 
     // Output the current time as a string `hhmmss`
     function format_time(date, ampm) {
-        var hours = date.getHours();
-        if (ampm) {
-            hours = hours % 12;
-        }
-        return [hours, date.getMinutes(), date.getSeconds()].map(
-            nn => (nn < 10 ? '0' + nn : '' + nn)
-        ).join('');
+        return [
+            ampm ? date.getHours() % 12 : date.getHours(),
+            date.getMinutes(),
+            date.getSeconds()
+        ].map(nn => ('' + nn).padStart(2, '0')).join('');
     }
 
     function isAM(date) {
